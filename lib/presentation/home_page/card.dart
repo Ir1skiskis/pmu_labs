@@ -23,8 +23,8 @@ class _CardSign extends StatefulWidget {
     VoidCallback? onTap,
   }) =>
       _CardSign(
-        data.text,
-        descriptionText: data.descriptionText,
+        data.text!,
+        descriptionText: data.descriptionText!,
         imageUrl: data.imageUrl,
         onLike: onLike,
         onTap: onTap,

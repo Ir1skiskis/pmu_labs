@@ -1,8 +1,8 @@
 class CardData {
-  final String text;
-  final String descriptionText;
+  final String? text;
+  final String? descriptionText;
   final String? imageUrl;
-  final String signDesc;
+  final String? signDesc;
 
   CardData(
     this.text, {
