@@ -64,7 +64,7 @@ class SignsRepository extends ApiInterface {
           await _dio.get<Map<dynamic, dynamic>>(url);
       final pages = response.data['query']['pages'] as Map<String, dynamic>;
 
-      removeByTitle(pages, 'Ведьмачьи знаки');
+      removeByTitle(pages, 'Ведьмачьи Знаки');
 
       List<(String, String)> descs = [];
 
