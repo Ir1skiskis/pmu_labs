@@ -5,13 +5,16 @@ import 'package:pmu_labs/domain/models/card.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:html/parser.dart' as html;
 import 'api_interface.dart';
+import 'dart:core';
+
+const _imagePlaceholder = 'https://trikky.ru/wp-content/blogs.dir/1/files/2020/03/24/iz-bisera.jpg';
 
 // Преобразует JSON в формат SignsDto
 Map<String, dynamic> transformJsonToSignsDtoFormat(
     Map<String, dynamic> pages, List<(String, String)> descs) {
   final transformedData = pages.values.map((sign) {
     final title = sign['title'] as String;
-    final imageUrl = sign['original']?['source'] as String? ?? '';
+    final imageUrl = sign['original']?['source'] as String? ?? _imagePlaceholder;
     final description = descs.firstWhere((desc) => desc.$1 == title).$2;
 
     return {
@@ -74,7 +77,11 @@ class SignsRepository extends ApiInterface {
             'https://vedmak.fandom.com/api.php?action=parse&page=${sign['title']}&prop=text&section=1&format=json');
         final htmlContent = respDesc.data['parse']['text']['*'];
         var doc = html.parse(htmlContent);
-        final String text = doc.body?.text as String;
+
+        String text = doc.body?.text ?? '';
+        text = text.replaceAll(RegExp(r'\[.*?\]'), '');
+        text = text.replaceAll('↑', '');
+        text = text.trim();
         descs.add((sign['title'], text));
       }
 
