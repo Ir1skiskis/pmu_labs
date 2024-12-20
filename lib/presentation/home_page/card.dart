@@ -1,13 +1,15 @@
 part of 'home_page.dart';
 
-typedef OnLikeCallback = void Function(String title, bool isLiked)?;
+typedef OnLikeCallback = void Function(String? id, String title, bool isLiked)?;
 
-class _CardSign extends StatefulWidget {
+class _CardSign extends StatelessWidget {
   final String text;
   final String descriptionText;
   final String? imageUrl;
   final OnLikeCallback? onLike;
   final VoidCallback? onTap;
+  final String id;
+  final bool isLiked;
 
   const _CardSign(
     this.text, {
@@ -15,32 +17,30 @@ class _CardSign extends StatefulWidget {
     this.imageUrl,
     this.onLike,
     this.onTap,
+    required this.id,
+    this.isLiked = false,
   });
 
   factory _CardSign.fromData(
     CardData data, {
     OnLikeCallback? onLike,
     VoidCallback? onTap,
+    bool isLiked = false,
   }) =>
       _CardSign(
         data.text!,
+        id: data.id,
         descriptionText: data.descriptionText!,
         imageUrl: data.imageUrl,
         onLike: onLike,
         onTap: onTap,
+        isLiked: isLiked,
       );
-
-  @override
-  State<_CardSign> createState() => _CardSignState();
-}
-
-class _CardSignState extends State<_CardSign> {
-  bool isLiked = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Container(
@@ -66,7 +66,7 @@ class _CardSignState extends State<_CardSign> {
                       children: [
                         Positioned.fill(
                           child: Image.network(
-                            widget.imageUrl ?? '',
+                            imageUrl ?? '',
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => const Placeholder(),
                           ),
@@ -82,11 +82,11 @@ class _CardSignState extends State<_CardSign> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.text,
+                          text,
                           style: Theme.of(context).textTheme.headlineLarge,
                         ),
                         Text(
-                          widget.descriptionText,
+                          descriptionText,
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ],
@@ -102,12 +102,7 @@ class _CardSignState extends State<_CardSign> {
                       bottom: 16,
                     ),
                     child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isLiked = !isLiked;
-                        });
-                        widget.onLike?.call(widget.text, isLiked);
-                      },
+                      onTap: () => onLike?.call(id, text, isLiked),
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
                         child: isLiked

@@ -7,22 +7,22 @@ import 'package:html/parser.dart' as html;
 import 'api_interface.dart';
 import 'dart:core';
 
-const _imagePlaceholder =
-    'https://trikky.ru/wp-content/blogs.dir/1/files/2020/03/24/iz-bisera.jpg';
+const _imagePlaceholder = 'https://i.pinimg.com/736x/c5/a3/c1/c5a3c132b54d48dbc17cb2cc2b4113a0.jpg';
 
 // Преобразует JSON в формат SignsDto
 Map<String, dynamic> transformJsonToSignsDtoFormat(
     Map<String, dynamic> pages, List<(String, String)> descs) {
   final transformedData = pages.values.map((sign) {
     final title = sign['title'] as String;
-    final imageUrl =
-        sign['original']?['source'] as String? ?? _imagePlaceholder;
+    final imageUrl = sign['original']?['source'] as String? ?? _imagePlaceholder;
     final description = descs.firstWhere((desc) => desc.$1 == title).$2;
+    final id = sign['pageid'].toString();
 
     return {
       'title': title,
       'imageUrl': imageUrl,
       'description': description,
+      'id': id,
     };
   }).toList();
 
@@ -54,8 +54,7 @@ class SignsRepository extends ApiInterface {
   static const String _baseUrl = 'https://vedmak.fandom.com/api.php';
 
   @override
-  Future<List<CardData>?> loadData(
-      {OnErrorCallback? onError, String? q}) async {
+  Future<List<CardData>?> loadData({OnErrorCallback? onError, String? q}) async {
     try {
       String url = '';
       if (q != null && q != "") {
@@ -66,8 +65,10 @@ class SignsRepository extends ApiInterface {
             '$_baseUrl?action=query&generator=categorymembers&gcmtitle=Category:Ведьмачьи_Знаки&gcmnamespace=0&gcmlimit=50&prop=pageimages&piprop=original&format=json&origin=*';
       }
 
-      final Response<dynamic> response =
-          await _dio.get<Map<dynamic, dynamic>>(url);
+      final List<CardData>? data;
+      SignsDto dto;
+
+      final Response<dynamic> response = await _dio.get<Map<dynamic, dynamic>>(url);
       final pages = response.data['query']['pages'] as Map<String, dynamic>;
 
       removeByTitle(pages, 'Ведьмачьи Знаки');
@@ -75,8 +76,7 @@ class SignsRepository extends ApiInterface {
       List<(String, String)> descs = [];
 
       for (var sign in pages.values.take(10)) {
-        final Response<dynamic> respDesc = await _dio.get<
-                Map<dynamic, dynamic>>(
+        final Response<dynamic> respDesc = await _dio.get<Map<dynamic, dynamic>>(
             'https://vedmak.fandom.com/api.php?action=parse&page=${sign['title']}&prop=text&section=1&format=json');
         final htmlContent = respDesc.data['parse']['text']['*'];
         var doc = html.parse(htmlContent);
@@ -90,17 +90,14 @@ class SignsRepository extends ApiInterface {
 
       final transData = transformJsonToSignsDtoFormat(pages, descs);
 
+      dto = SignsDto.fromJson(transData);
       if (q != null && q != "") {
         getBySearch(pages, q);
         final transData = transformJsonToSignsDtoFormat(pages, descs);
-        final SignsDto dto = SignsDto.fromJson(transData);
-        final List<CardData>? data =
-            dto.data?.map((e) => e.toDomain()).toList();
-        return data;
+        dto = SignsDto.fromJson(transData);
       }
 
-      final SignsDto dto = SignsDto.fromJson(transData);
-      final List<CardData>? data = dto.data?.map((e) => e.toDomain()).toList();
+      data = dto.data?.map((e) => e.toDomain()).toList();
       return data;
     } on DioException catch (e) {
       onError?.call(e.error?.toString());

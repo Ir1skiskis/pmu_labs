@@ -25,6 +25,7 @@ SignsDataDto _$SignsDataDtoFromJson(Map<String, dynamic> json) => SignsDataDto(
 SignAttributesDataDto _$SignAttributesDataDtoFromJson(
         Map<String, dynamic> json) =>
     SignAttributesDataDto(
+      id: json['id'] as String?,
       title: json['title'] as String?,
       imageUrl: json['imageUrl'] as String?,
       description: json['description'] as String?,

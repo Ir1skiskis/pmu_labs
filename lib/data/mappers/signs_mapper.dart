@@ -3,9 +3,10 @@ import 'package:pmu_labs/domain/models/card.dart';
 
 extension SignDataDtoToModel on SignAttributesDataDto {
   CardData toDomain() => CardData(
-    title ?? 'UNKNOWN',
-    descriptionText: 'Узнать больше', //attributes?.description,
-    signDesc: description,//attributes?.drop,
-    imageUrl: imageUrl,
-  );
+        title ?? 'UNKNOWN',
+        id: id ?? 'UNKNOWN',
+        descriptionText: 'Узнать больше', //attributes?.description,
+        signDesc: description, //attributes?.drop,
+        imageUrl: imageUrl,
+      );
 }

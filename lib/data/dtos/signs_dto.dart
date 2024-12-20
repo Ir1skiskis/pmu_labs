@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'signs_dto.g.dart';
 
 @JsonSerializable(createToJson: false)
-class SignsDto{
+class SignsDto {
   final List<SignAttributesDataDto>? data;
 
   const SignsDto({this.data});
@@ -12,7 +12,7 @@ class SignsDto{
 }
 
 @JsonSerializable(createToJson: false)
-class SignsDataDto{
+class SignsDataDto {
   final String? id;
   final String? type;
   final SignAttributesDataDto? attributes;
@@ -23,12 +23,14 @@ class SignsDataDto{
 }
 
 @JsonSerializable(createToJson: false)
-class SignAttributesDataDto{
+class SignAttributesDataDto {
+  final String? id;
   final String? title;
   final String? imageUrl;
   final String? description;
 
-  const SignAttributesDataDto({this.title, this.imageUrl, this.description});
+  const SignAttributesDataDto({this.id, this.title, this.imageUrl, this.description});
 
-  factory SignAttributesDataDto.fromJson(Map<String, dynamic> json) => _$SignAttributesDataDtoFromJson(json);
+  factory SignAttributesDataDto.fromJson(Map<String, dynamic> json) =>
+      _$SignAttributesDataDtoFromJson(json);
 }
