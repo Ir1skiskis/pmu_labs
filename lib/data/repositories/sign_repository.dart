@@ -7,14 +7,16 @@ import 'package:html/parser.dart' as html;
 import 'api_interface.dart';
 import 'dart:core';
 
-const _imagePlaceholder = 'https://trikky.ru/wp-content/blogs.dir/1/files/2020/03/24/iz-bisera.jpg';
+const _imagePlaceholder =
+    'https://trikky.ru/wp-content/blogs.dir/1/files/2020/03/24/iz-bisera.jpg';
 
 // Преобразует JSON в формат SignsDto
 Map<String, dynamic> transformJsonToSignsDtoFormat(
     Map<String, dynamic> pages, List<(String, String)> descs) {
   final transformedData = pages.values.map((sign) {
     final title = sign['title'] as String;
-    final imageUrl = sign['original']?['source'] as String? ?? _imagePlaceholder;
+    final imageUrl =
+        sign['original']?['source'] as String? ?? _imagePlaceholder;
     final description = descs.firstWhere((desc) => desc.$1 == title).$2;
 
     return {
@@ -30,7 +32,7 @@ Map<String, dynamic> transformJsonToSignsDtoFormat(
   };
 }
 
-void getBySearch(Map<String, dynamic> map, String? title){
+void getBySearch(Map<String, dynamic> map, String? title) {
   map.removeWhere((key, value) {
     return value is Map<String, dynamic> && value['title'] != title;
   });
@@ -52,7 +54,8 @@ class SignsRepository extends ApiInterface {
   static const String _baseUrl = 'https://vedmak.fandom.com/api.php';
 
   @override
-  Future<List<CardData>?> loadData({String? q}) async {
+  Future<List<CardData>?> loadData(
+      {OnErrorCallback? onError, String? q}) async {
     try {
       String url = '';
       if (q != null && q != "") {
@@ -100,6 +103,7 @@ class SignsRepository extends ApiInterface {
       final List<CardData>? data = dto.data?.map((e) => e.toDomain()).toList();
       return data;
     } on DioException catch (e) {
+      onError?.call(e.error?.toString());
       return null;
     }
   }

@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart%20%20';
 import 'package:pmu_labs/presentation/details_page/details_page.dart';
+import '../../components/utils/debounce.dart';
 import '../../domain/models/card.dart';
-import 'package:pmu_labs/data/repositories/sign_repository.dart';
+import 'package:pmu_labs/presentation/home_page/bloc/bloc.dart';
+import 'package:pmu_labs/presentation/home_page/bloc/events.dart';
+import 'package:pmu_labs/presentation/home_page/bloc/state.dart';
 
 part 'card.dart';
 
@@ -39,56 +43,78 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
   final searchController = TextEditingController();
-  late Future<List<CardData>?> data;
-  final repo = SignsRepository();
 
   @override
   void initState() {
-    data = repo.loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeBloc>().add(const HomeLoadDataEvent());
+    });
     super.initState();
   }
-    @override
-    Widget build(BuildContext context) {
-      return Padding(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: CupertinoSearchTextField(
-                controller: searchController,
-                onSubmitted: (search) {
-                  setState(() {
-                    data = repo.loadData(q: search);
-                  });
-                },
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: FutureBuilder<List<CardData>?>(
-                  future: data,
-                  builder: (context, snapshot) => SingleChildScrollView(
-                    child: snapshot.hasData
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: snapshot.data?.map((data) {
-                                  return _CardSign.fromData(
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onRefresh() {
+    context
+        .read<HomeBloc>()
+        .add(HomeLoadDataEvent(search: searchController.text));
+    return Future.value(null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: CupertinoSearchTextField(
+            controller: searchController,
+            onChanged: (search) {
+              Debounce.run(() => context
+                  .read<HomeBloc>()
+                  .add(HomeLoadDataEvent(search: search)));
+            },
+          ),
+        ),
+        BlocBuilder<HomeBloc, HomeState>(
+          builder: (context, state) => state.error != null
+              ? Text(
+                  state.error ?? '',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(color: Colors.red),
+                )
+              : state.isLoading
+                  ? const CircularProgressIndicator()
+                  : Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: _onRefresh,
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: state.data?.length ?? 0,
+                          itemBuilder: (context, index) {
+                            final data = state.data?[index];
+                            return data != null
+                                ? _CardSign.fromData(
                                     data,
                                     onLike: (String title, bool isLiked) =>
                                         _showSnackBar(context, title, isLiked),
                                     onTap: () => _navToDetails(context, data),
-                                  );
-                                }).toList() ??
-                                [],
-                          )
-                        : const CircularProgressIndicator(),
-                  ),
-                ),
-              ),
-            ),
-          ]));
-    }
-
+                                  )
+                                : const SizedBox.shrink();
+                          },
+                        ),
+                      ),
+                    ),
+        ),
+      ],
+    );
+  }
 
   void _navToDetails(BuildContext context, CardData data) {
     Navigator.push(
