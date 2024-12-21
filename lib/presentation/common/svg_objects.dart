@@ -10,7 +10,8 @@ abstract class SvgObjects {
     ];
     for (final String p in pics) {
       final loader = SvgAssetLoader(p);
-      svg.cache.putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
+      svg.cache
+          .putIfAbsent(loader.cacheKey(null), () => loader.loadBytes(null));
     }
   }
 }

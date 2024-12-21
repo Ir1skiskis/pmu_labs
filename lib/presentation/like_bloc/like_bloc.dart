@@ -5,25 +5,27 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const String _likedPrefsKey = 'liked';
 
-class LikeBloc extends Bloc<LikeEvent, LikeState>{
-  LikeBloc() : super(const LikeState(likedIds: [])){
+class LikeBloc extends Bloc<LikeEvent, LikeState> {
+  LikeBloc() : super(const LikeState(likedIds: [])) {
     on<ChangeLikeEvent>(_onChangeLike);
     on<LoadLikesEvent>(_onLoadLikes);
   }
 
-  Future<void> _onLoadLikes(LoadLikesEvent event, Emitter<LikeState> emit) async{
+  Future<void> _onLoadLikes(
+      LoadLikesEvent event, Emitter<LikeState> emit) async {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getStringList(_likedPrefsKey);
 
     emit(state.copyWith(likedIds: data));
   }
 
-  Future<void> _onChangeLike(ChangeLikeEvent event, Emitter<LikeState> emit) async{
+  Future<void> _onChangeLike(
+      ChangeLikeEvent event, Emitter<LikeState> emit) async {
     final updatedList = List<String>.from(state.likedIds ?? []);
 
-    if(updatedList.contains(event.id)){
+    if (updatedList.contains(event.id)) {
       updatedList.remove(event.id);
-    } else{
+    } else {
       updatedList.add(event.id);
     }
 

@@ -8,7 +8,8 @@ class SignsDto {
 
   const SignsDto({this.data});
 
-  factory SignsDto.fromJson(Map<String, dynamic> json) => _$SignsDtoFromJson(json);
+  factory SignsDto.fromJson(Map<String, dynamic> json) =>
+      _$SignsDtoFromJson(json);
 }
 
 @JsonSerializable(createToJson: false)
@@ -19,7 +20,8 @@ class SignsDataDto {
 
   const SignsDataDto({this.id, this.type, this.attributes});
 
-  factory SignsDataDto.fromJson(Map<String, dynamic> json) => _$SignsDataDtoFromJson(json);
+  factory SignsDataDto.fromJson(Map<String, dynamic> json) =>
+      _$SignsDataDtoFromJson(json);
 }
 
 @JsonSerializable(createToJson: false)
@@ -29,7 +31,8 @@ class SignAttributesDataDto {
   final String? imageUrl;
   final String? description;
 
-  const SignAttributesDataDto({this.id, this.title, this.imageUrl, this.description});
+  const SignAttributesDataDto(
+      {this.id, this.title, this.imageUrl, this.description});
 
   factory SignAttributesDataDto.fromJson(Map<String, dynamic> json) =>
       _$SignAttributesDataDtoFromJson(json);

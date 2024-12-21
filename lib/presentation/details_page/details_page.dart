@@ -14,7 +14,8 @@ class DetailsPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Container(
-          constraints: BoxConstraints(minHeight: MediaQuery.sizeOf(context).height - 105),
+          constraints: BoxConstraints(
+              minHeight: MediaQuery.sizeOf(context).height - 105),
           decoration: const BoxDecoration(
             color: Color.fromARGB(255, 255, 255, 255),
           ),

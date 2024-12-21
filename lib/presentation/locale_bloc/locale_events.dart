@@ -1,7 +1,7 @@
-abstract class LocaleEvent{
+abstract class LocaleEvent {
   const LocaleEvent();
 }
 
-class ChangeLocaleEvent extends LocaleEvent{
+class ChangeLocaleEvent extends LocaleEvent {
   const ChangeLocaleEvent();
 }
