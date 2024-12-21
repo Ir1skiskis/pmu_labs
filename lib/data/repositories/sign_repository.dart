@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:pmu_labs/data/dtos/signs_dto.dart';
 import 'package:pmu_labs/data/mappers/signs_mapper.dart';
-import 'package:pmu_labs/domain/models/card.dart';
+import 'package:pmu_labs/domain/models/home_data.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:html/parser.dart' as html;
 import 'api_interface.dart';
@@ -54,8 +54,7 @@ class SignsRepository extends ApiInterface {
   static const String _baseUrl = 'https://vedmak.fandom.com/api.php';
 
   @override
-  Future<List<CardData>?> loadData(
-      {OnErrorCallback? onError, String? q}) async {
+  Future<HomeData?> loadData({OnErrorCallback? onError, String? q}) async {
     try {
       String url = '';
       if (q != null && q != "") {
@@ -66,7 +65,7 @@ class SignsRepository extends ApiInterface {
             '$_baseUrl?action=query&generator=categorymembers&gcmtitle=Category:Ведьмачьи_Знаки&gcmnamespace=0&gcmlimit=50&prop=pageimages&piprop=original&format=json&origin=*';
       }
 
-      final List<CardData>? data;
+      final HomeData? data;
       SignsDto dto;
 
       final Response<dynamic> response =
@@ -77,18 +76,31 @@ class SignsRepository extends ApiInterface {
 
       List<(String, String)> descs = [];
 
+      final Response<dynamic> respDesc = await _dio.get<Map<dynamic, dynamic>>(
+          'https://vedmak.fandom.com/api.php?action=query&generator=categorymembers&gcmtitle=Category:Ведьмачьи_Знаки&gcmnamespace=0&gcmlimit=50&prop=revisions&rvprop=content&format=json&origin=*');
+
       for (var sign in pages.values) {
-        final Response<dynamic> respDesc = await _dio.get<
-                Map<dynamic, dynamic>>(
-            'https://vedmak.fandom.com/api.php?action=parse&page=${sign['title']}&prop=text&section=1&format=json');
-        final htmlContent = respDesc.data['parse']['text']['*'];
+        final htmlContent = respDesc.data['query']['pages']['${sign['pageid']}']
+            ['revisions'][0]['*'];
         var doc = html.parse(htmlContent);
 
         String text = doc.body?.text ?? '';
-        text = text.replaceAll(RegExp(r'\[.*?\]'), '');
-        text = text.replaceAll('↑', '');
-        text = text.trim();
-        descs.add((sign['title'], text));
+        int index = text.indexOf("==Описание==");
+        if (index != -1)
+        {
+          text = text.substring(index);
+        }
+        text = text.split("=={{Tw1}}==")[0];
+        text = text.split("== Дополнительно ==")[0];
+        text.replaceAll(RegExp(r'\[.*?\]'), '');
+        text.replaceAll(RegExp(r'\{\{|\}\}'), '');
+        text.replaceAll(RegExp(r'\[\[|\]\]'), '');
+        text = text.replaceAll(RegExp(r'(\=\=|\{\{|\[\[|\}\}|==|\}\}|\]\]|[|])'), '');
+        text.replaceAll('↑', '');
+        text = text.split("Дополнительно")[0];
+        text = text.split("Tw2")[0];
+        text = text.replaceAll(RegExp(r'Магия\nНазвание      =.*?которые доступны ведьмакам.', dotAll: true), '');
+        descs.add((sign['title'], text.trim()));
       }
 
       final transData = transformJsonToSignsDtoFormat(pages, descs);
@@ -100,7 +112,7 @@ class SignsRepository extends ApiInterface {
         dto = SignsDto.fromJson(transData);
       }
 
-      data = dto.data?.map((e) => e.toDomain()).toList();
+      data = dto.toDomain();
       return data;
     } on DioException catch (e) {
       onError?.call(e.error?.toString());

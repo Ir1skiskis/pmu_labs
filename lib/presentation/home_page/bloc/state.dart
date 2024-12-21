@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
-import 'package:pmu_labs/domain/models/card.dart';
+
+import '../../../domain/models/home_data.dart';
 
 class HomeState extends Equatable {
-  final List<CardData>? data;
+  final HomeData? data;
   final bool isLoading;
   final String? error;
 
@@ -13,7 +14,7 @@ class HomeState extends Equatable {
   });
 
   HomeState copyWith({
-    List<CardData>? data,
+    HomeData? data,
     bool? isLoading,
     String? error,
   }) =>

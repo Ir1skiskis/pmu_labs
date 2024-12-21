@@ -13,15 +13,6 @@ SignsDto _$SignsDtoFromJson(Map<String, dynamic> json) => SignsDto(
           .toList(),
     );
 
-SignsDataDto _$SignsDataDtoFromJson(Map<String, dynamic> json) => SignsDataDto(
-      id: json['id'] as String?,
-      type: json['type'] as String?,
-      attributes: json['attributes'] == null
-          ? null
-          : SignAttributesDataDto.fromJson(
-              json['attributes'] as Map<String, dynamic>),
-    );
-
 SignAttributesDataDto _$SignAttributesDataDtoFromJson(
         Map<String, dynamic> json) =>
     SignAttributesDataDto(

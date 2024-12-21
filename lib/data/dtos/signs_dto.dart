@@ -13,18 +13,6 @@ class SignsDto {
 }
 
 @JsonSerializable(createToJson: false)
-class SignsDataDto {
-  final String? id;
-  final String? type;
-  final SignAttributesDataDto? attributes;
-
-  const SignsDataDto({this.id, this.type, this.attributes});
-
-  factory SignsDataDto.fromJson(Map<String, dynamic> json) =>
-      _$SignsDataDtoFromJson(json);
-}
-
-@JsonSerializable(createToJson: false)
 class SignAttributesDataDto {
   final String? id;
   final String? title;

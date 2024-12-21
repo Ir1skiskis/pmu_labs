@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="pmu_labs"
+        android:label="Знаки The Witcher 3"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
